@@ -163,6 +163,7 @@ deployStack() {
 
 # In the future, we should here propose choice to the user. Currently, we have only one stack, so let's deploy it.
 doBootStrap() {
+    deployStack 'infra'
     deployStack 'wordpress'
 }
 
