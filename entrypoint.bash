@@ -14,6 +14,7 @@
 declare ERR_UNSUPPORTED_OS=1
 declare ERR_MISSING_LIB=2
 declare ERR_INSUFFICIENT_PRIVILEGES=3
+declare BIARMS_STACKS_FOLDER='biarms-stacks'
 
 # Inspired by https://github.com/progrium/bashstyle
 initBestPractices() {
@@ -121,11 +122,36 @@ updateOS() {
 }
 
 installNeededPackages() {
-    sudo apt-get -y install wget make
+    sudo apt-get -y install wget make git
 }
 
 installDocker() {
     curl -fsSL get.docker.com | sh
+    sudo usermod -aG docker "${USER}"
+    sudo docker version
+    sudo docker swarm init
+}
+
+checkoutBIARMSStackGitRepo() {
+    git clone "https://github.com/biarms/arm-docker-stacks" "${BIARMS_STACKS_FOLDER}"
+}
+
+# Deploy an 'BIARMS' docker stack. Current implemention is using make:
+# 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder
+# 2. We know that a Makefile is present in each sub-folder
+# 3. We know that a 'deploy' make target exists
+#
+# $1 (String) -> the 'docker stack' identifier (which is the name of a sub-folder in arm-docker-stacks' git repo.
+deployStack() {
+    local stack_id="$1"
+    pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
+    make deploy
+    popd
+}
+
+# In the future, we should here propose choice to the user. Currently, we have only one stack, so let's deploy it.
+doBootStrap() {
+    deployStack 'wordpress'
 }
 
 # The main entry point of this script.
@@ -137,6 +163,8 @@ main() {
     updateOS
     installNeededPackages
     installDocker
+    checkoutBIARMSStackGitRepo
+    doBootStrap
     log "Brother in Arm's project bootstrap completed"
 }
 
