@@ -154,7 +154,10 @@ checkoutBIARMSStackGitRepo() {
 deployStack() {
     local stack_id="$1"
     pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
-    make deploy
+    # Don't use make, because make don't behave correctly on different OS. Use bash for now, until we find
+    # something better
+    # make deploy
+    ./deploy.sh
     popd
 }
 
