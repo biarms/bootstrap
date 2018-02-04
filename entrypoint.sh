@@ -3,7 +3,7 @@
 #   $ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh -o biarms-bootstrap.sh
 #   $ sh biarms-bootstrap.sh
 # One line alternative:
-#   $ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh || sh
+#   $ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh | sh
 #
 # NOTE: Make sure to verify the contents of the script
 #       you downloaded matches the contents of entrypoint.bash

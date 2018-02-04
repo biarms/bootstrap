@@ -1,0 +1,22 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+    <block type="onfirstboot" id="onfirstboot" x="264" y="6">
+        <next>
+            <block type="changepass" id="Dea1Skrvhg6gqA8PA*5X">
+                <field name="1">changeit</field>
+                <next>
+                    <block type="wifisetup" id="vB8rV-MNKb{(3@uDBNJI">
+                        <field name="1">put yours</field>
+                        <field name="2">put yours</field>
+                        <field name="3">WPA/WPA2</field>
+                        <next>
+                            <block type="runcommand" id="}S}r;SD;?mRf8]ma`Kln">
+                                <field name="1">curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh | sh</field>
+                                <field name="2">pi</field>
+                            </block>
+                        </next>
+                    </block>
+                </next>
+            </block>
+        </next>
+    </block>
+</xml>
