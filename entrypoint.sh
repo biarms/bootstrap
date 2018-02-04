@@ -37,4 +37,6 @@ main() {
     fi
 }
 
+# Always put the main method call at the end of the file so that we have some protection against only
+# getting half the file during "curl | sh"
 main

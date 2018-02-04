@@ -129,11 +129,20 @@ installDocker() {
     curl -fsSL get.docker.com | sh
     sudo usermod -aG docker "${USER}"
     sudo docker version
-    sudo docker swarm init
+    # The script was run twice and the swarm was already setup: OK: just ignore this pb (-> || true)
+    sudo docker swarm init || true
 }
 
 checkoutBIARMSStackGitRepo() {
-    git clone "https://github.com/biarms/arm-docker-stacks" "${BIARMS_STACKS_FOLDER}"
+    if [ -f "${BIARMS_STACKS_FOLDER}" ]; then
+        # if the folder exist, we assumpt it is our, and we updated it with git
+        pushd
+        git pull
+        popd
+    else
+        # otherwise, we create it
+        git clone "https://github.com/biarms/arm-docker-stacks" "${BIARMS_STACKS_FOLDER}"
+    fi
 }
 
 # Deploy an 'BIARMS' docker stack. Current implemention is using make:
@@ -167,11 +176,6 @@ main() {
     doBootStrap
     log "Brother in Arm's project bootstrap completed"
 }
-
-# Don't run the main function if the this file is 'sourced', which is the case with bash_unit. So next line is a MUST for runnable script (not necessary for bash libraries)
-# Inspired by https://github.com/progrium/bashstyle
-[[ "$0" == "$BASH_SOURCE" ]] && main "$@"
-
 
 ### Test functions, designed to be run with bash_unit (https://github.com/pgrange/bash_unit)
 # Called before all tests (only once)
@@ -213,3 +217,9 @@ teardown() {
 teardown_suite() {
     printf "<=\n"
 }
+
+# Always put the main method call at the end of the file so that we have some protection against only
+# getting half the file during "curl | sh"
+# Don't run the main function if the this file is 'sourced', which is the case with bash_unit. So next line is a MUST for runnable script (not necessary for bash libraries)
+# Inspired by https://github.com/progrium/bashstyle
+[[ "$0" == "$BASH_SOURCE" ]] && main "$@"
