@@ -134,9 +134,9 @@ installDocker() {
 }
 
 checkoutBIARMSStackGitRepo() {
-    if [ -f "${BIARMS_STACKS_FOLDER}" ]; then
+    if [ -d "${BIARMS_STACKS_FOLDER}" ]; then
         # if the folder exist, we assumpt it is our, and we updated it with git
-        pushd
+        pushd "${BIARMS_STACKS_FOLDER}"
         git pull
         popd
     else
@@ -164,16 +164,24 @@ doBootStrap() {
 }
 
 # The main entry point of this script.
+# $1 (String, un-mandatory): a method name: if provided, only this method will be called. Otherwise, the entire script
+# will be executed. Could be useful for debugging and or recovery.
 main() {
+    local methodName="$1"
     initBestPractices
     logSetup
     log "Start Brother in Arm's project bootstrap"
-    checkOSIsSupported
-    updateOS
-    installNeededPackages
-    installDocker
-    checkoutBIARMSStackGitRepo
-    doBootStrap
+    if [[ "$methodName" == "" ]]; then
+        checkOSIsSupported
+        updateOS
+        installNeededPackages
+        installDocker
+        checkoutBIARMSStackGitRepo
+        doBootStrap
+    else
+        shift
+        "$methodName" $*
+    fi
     log "Brother in Arm's project bootstrap completed"
 }
 
@@ -207,6 +215,21 @@ test_checkBinaryIsInThePath() {
 test_checkOSIsSupported() {
     assert_status_code 0 "checkOSIsSupported"
 }
+
+test_checkoutBIARMSStackGitRepo() {
+    rm -rf "$BIARMS_STACKS_FOLDER" || true
+    checkoutBIARMSStackGitRepo
+    if [ ! -f "$BIARMS_STACKS_FOLDER/README.md" ]; then
+        fail "File $BIARMS_STACKS_FOLDER/README.md doesn't exist"
+    fi
+    # rm "$BIARMS_STACKS_FOLDER/README.md"
+    checkoutBIARMSStackGitRepo
+    if [ ! -f "$BIARMS_STACKS_FOLDER/README.md" ]; then
+        fail "File $BIARMS_STACKS_FOLDER/README.md doesn't exist"
+    fi
+    rm -rf "$BIARMS_STACKS_FOLDER" || true
+}
+
 
 # Called after each test
 teardown() {
