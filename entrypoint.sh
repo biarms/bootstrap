@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script is meant for quick & easy install via:
 #   $ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh -o biarms-bootstrap.sh
-#   $ bash biarms-bootstrap
+#   $ bash biarms-bootstrap.sh
 #
 # NOTE: Make sure to verify the contents of the script
 #       you downloaded matches the contents of install.sh
@@ -10,10 +10,11 @@
 #
 
 # Inspired by https://github.com/progrium/bashstyle
-function initBestPractices {
+initBestPractices() {
+    # Very basic debug mode
+    [[ "$TRACE" ]] && set -x
     # Stop on error
     set -eo pipefail
-    [[ "$TRACE" ]] && set -x
 }
 
 # Log framework inspired from https://www.franzoni.eu/quick-log-for-bash-scripts-with-line-limit/
@@ -24,7 +25,7 @@ function initBestPractices {
 # of your program execution.
 # execute 'logsetup' once at the beginning of your script, then
 # use 'log' how many times you like.
-function logSetup {
+logSetup() {
     LOGFILE=biarms-bootstrap-$(date '+%Y-%m-%d-%H-%M-%S').log
     RETAIN_NUM_LINES=10000
     TMP=$(tail -n $RETAIN_NUM_LINES $LOGFILE 2>/dev/null) && echo "${TMP}" > $LOGFILE
@@ -32,15 +33,15 @@ function logSetup {
     exec 2>&1
 }
 # A stupid log function, that print the given parameters in stdout (but add a timestamp)
-function log {
+log() {
     printf "[$(date '+%Y-%m-%d-%H-%M-%S')]: $* \n"
 }
 # A stupid log function, that print the given parameters in stdout (but add [INFO]- and a timestamp )
-function logInfo {
+logInfo() {
     log "[INFO]- $* \n"
 }
 # A stupid log function, that print the given parameters in stdout (but add [WARN]- and a timestamp )
-function logWarn {
+logWarn() {
     log "[WARN]- $* \n"
 }
 
