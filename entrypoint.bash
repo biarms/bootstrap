@@ -122,7 +122,7 @@ updateOS() {
 }
 
 installNeededPackages() {
-    sudo apt-get -y install wget make git
+    sudo apt-get -y install wget make git pwgen
 }
 
 installDocker() {

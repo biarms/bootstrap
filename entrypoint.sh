@@ -23,6 +23,7 @@ main() {
         if which curl > /dev/null; then
             local url="https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.bash"
             curl -fsSL "${url}" -o biarms-bootstrap.bash
+            chmod +x biarms-bootstrap.bash
             if [ $? -ne 0 ]; then
                 echo "An error occurred when trying to download the '$url' URL."
                 echo "Are you sure the network is OK ?"
