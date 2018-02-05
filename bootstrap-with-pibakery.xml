@@ -1,5 +1,5 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
-    <block type="onfirstboot" id="onfirstboot" x="264" y="6">
+    <block type="onfirstboot" id="onfirstboot" x="37" y="-6">
         <next>
             <block type="changepass" id="Dea1Skrvhg6gqA8PA*5X">
                 <field name="1">changeit</field>
