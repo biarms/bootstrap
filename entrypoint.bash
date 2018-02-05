@@ -174,19 +174,20 @@ main() {
     local methodName="$1"
     initBestPractices
     logSetup
-    log "Start Brother in Arm's project bootstrap"
+    log "Start Brother in Arms' project bootstrap"
     if [[ "$methodName" == "" ]]; then
         checkOSIsSupported
         updateOS
         installNeededPackages
         installDocker
         checkoutBIARMSStackGitRepo
-        doBootStrap
+        # A workaround for the second known issue: finish the installation in a new session. But that's a mess at log level :(
+        sudo -u "$USER" "$(pwd)/$0" doBootStrap
     else
         shift
         "$methodName" $*
     fi
-    log "Brother in Arm's project bootstrap completed"
+    log "Brother in Arms' project bootstrap completed"
 }
 
 ### Test functions, designed to be run with bash_unit (https://github.com/pgrange/bash_unit)
