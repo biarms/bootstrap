@@ -21,7 +21,9 @@ printPrerequisitesThanExit() {
 main() {
     if which bash > /dev/null; then
         if which curl > /dev/null; then
-            local url="https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.bash"
+            local url="https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh"
+            curl -fsSL "${url}" -o biarms-bootstrap.sh
+            url="https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.bash"
             curl -fsSL "${url}" -o biarms-bootstrap.bash
             chmod +x biarms-bootstrap.bash
             if [ $? -ne 0 ]; then

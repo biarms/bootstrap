@@ -167,6 +167,16 @@ doBootStrap() {
     deployStack 'wordpress'
 }
 
+# Display IP.
+doDisplayIP() {
+    checkBinaryIsInThePath 'ip'
+    local ip="$(ip route get 8.8.8.8 | head -1 | awk '{print $7}')"
+    logInfo "To access the Docker Admin Portainer console, try to access to http://${ip}:9000/"
+    logInfo "To access the WordPress web site, try to access to http://${ip}:8050/"
+    logInfo "Alternative: http://$(hostname).local:9000/ may also works if you've correctly configure the zeroconf software on your network"
+    logInfo "Other IP alternatives: $(hostname -I)"
+ }
+
 # The main entry point of this script.
 # $1 (String, un-mandatory): a method name: if provided, only this method will be called. Otherwise, the entire script
 # will be executed. Could be useful for debugging and or recovery.
@@ -182,7 +192,10 @@ main() {
         installDocker
         checkoutBIARMSStackGitRepo
         # A workaround for the second known issue: finish the installation in a new session. But that's a mess at log level :(
-        sudo -u "$USER" "$(pwd)/$0" doBootStrap
+        # sudo -u "$USER" "$(pwd)/$0" doBootStrap
+        # Actually, it doesn't work...
+        doBootStrap
+        doDisplayIP
     else
         shift
         "$methodName" $*
