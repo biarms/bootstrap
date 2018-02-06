@@ -82,15 +82,16 @@ pi@raspberrypi:~ $ ip addr | grep inet
     inet 169.254.213.104/16 brd 169.254.255.255 scope global veth92e8007
     inet6 fe80::e876:17ff:fe4d:19d7/64 scope link
 ```
-Quite often, the line with eth0 contains the solution:
+Quite often, the line with eth0 or wlan0 contains the solution:
 ```
 pi@raspberrypi:~ $ ip addr | grep inet | grep eth0
     inet 192.168.0.105/24 brd 192.168.0.255 scope global eth0
+pi@raspberrypi:~ $ ip addr | grep inet | grep wlan0
+    inet 192.168.0.205/24 brd 192.168.0.255 scope global wlan0
 ```
-So in that case, the IP is `192.168.0.105`
+In our case, both `192.168.0.105` and `192.168.0.205` should be OK. But let's consider `192.168.0.105` for the rest of the explaination.
 
-If you don't have any keyboard nor screen plug
-`ping raspberrypi.local` executed on another computer could help.
+If you don't have any keyboard nor screen plugged in, `ping raspberrypi.local` executed on another computer could help.
 ```
 $ ping raspberrypi.local
 PING raspberrypi.local (192.168.0.105): 56 data bytes
@@ -162,3 +163,10 @@ That's a temporary error, related to the fact that 'apt-get' was already running
 ### The logs ends with : 'Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get http://%2Fvar%2Frun%2Fdocker.sock/v1.35/info: dial unix /var/run/docker.sock: connect: permission denied'
 When the script is executed for the first time, the user 'pi' add himself to the 'docker' group, and continue the installation. Unfortunately, some OS did that into account that user group association immediately.
 Exiting the current session, relogging an relaunching the script should solve that issue.
+
+```
+$ exit
+<login>
+$ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.sh | sh
+```
+
