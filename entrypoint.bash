@@ -1,22 +1,26 @@
 #!/bin/bash
+##
 # This script is meant for quick & easy install via:
 #   $ curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.bash -o biarms-bootstrap.bash
 #   $ bash biarms-bootstrap.bash
-# One line alternative:
+# One-liner alternative:
 #   $ bash <(curl -fsSL https://raw.githubusercontent.com/biarms/bootstrap/master/entrypoint.bash)
 #
 # NOTE: Make sure to verify the contents of the script
 #       you downloaded matches the contents of entrypoint.bash
 #       located at https://github.com/biarms/bootstrap
 #       before executing.
-#
+##
 
 declare ERR_UNSUPPORTED_OS=1
 declare ERR_MISSING_LIB=2
 declare ERR_INSUFFICIENT_PRIVILEGES=3
 declare BIARMS_STACKS_FOLDER='biarms-stacks'
 
-# Inspired by https://github.com/progrium/bashstyle
+##
+# Inspired by https://github.com/progrium/bashstyle.
+# @param : none.
+##
 initBestPractices() {
     # Very basic debug mode
     [[ "$TRACE" ]] && set -x
@@ -24,14 +28,16 @@ initBestPractices() {
     set -eo pipefail
 }
 
-# Log framework inspired from https://www.franzoni.eu/quick-log-for-bash-scripts-with-line-limit/
-#
-# set LOGFILE to the full path of your desired logfile; make sure
+##
+# Log framework inspired from https://www.franzoni.eu/quick-log-for-bash-scripts-with-line-limit/.
+# Set LOGFILE to the full path of your desired logfile; make sure
 # you have write permissions there. set RETAIN_NUM_LINES to the
 # maximum number of lines that should be retained at the beginning
 # of your program execution.
 # execute 'logsetup' once at the beginning of your script, then
 # use 'log' how many times you like.
+# @param : none.
+##
 logSetup() {
     LOGFILE=biarms-bootstrap-$(date '+%Y-%m-%d-%H-%M-%S').log
     RETAIN_NUM_LINES=10000
@@ -39,30 +45,40 @@ logSetup() {
     exec > >(tee -a $LOGFILE)
     exec 2>&1
 }
+##
 # A stupid log function, that print the given parameters in stdout (but add a timestamp)
-# $1 (String) -> the message to log
+# @param $1 (String) -> the message to log
+##
 log() {
     printf "[$(date '+%Y-%m-%d-%H-%M-%S')]-$* \n"
 }
+##
 # A stupid log function, that print the given parameters in stdout (but add [INFO]- and a timestamp )
-# $1 (String) -> the information message
+# @param $1 (String) -> the information message
+##
 logInfo() {
     log "[INFO ]: $*"
 }
+##
 # A stupid log function, that print the given parameters in stdout (but add [WARN]- and a timestamp )
-# $1 (String) -> the warning message
+# @param $1 (String) -> the warning message
+##
 logWarn() {
     log "[WARN ]: $*"
 }
+##
 # A stupid log function, that print the given parameters in stdout (but add [ERROR]- and a timestamp )
-# $1 (String) -> the error message
+# @param $1 (String) -> the error message
+##
 logError() {
     log "[ERROR]: $*"
 }
+##
 # A stupid log function, that print the given parameters in stdout (but add [FATAL]- and a timestamp )
 # Then exist with the provided error code.
-# $1 (int)    -> the exit error code
-# $2 (String) -> the error message
+# @param $1 (int)    -> the exit error code
+# @param $2 (String) -> the error message
+##
 logFatalError() {
     local errorCode=$1
     log "[FATAL]: A fatal error occurred. Error code: ${errorCode}"
@@ -71,10 +87,12 @@ logFatalError() {
     exit ${errorCode}
 }
 
+##
 # Check that a binary is present in the path. Exit with error code ERR_MISSING_LIB otherwise.
-# $1 -> the executable to find in the path.
+# @param $1 -> the executable to find in the path.
 # Sample usage:
-#    checkBinaryIsInThePath wget
+#    checkBinaryIsInThePath 'wget'
+##
 checkBinaryIsInThePath() {
     local binaryFile="$1"
     if ! which "${binaryFile}" > /dev/null; then
@@ -82,7 +100,14 @@ checkBinaryIsInThePath() {
     fi
 }
 
-# Get the linux distribution identifier (ie: ubuntu, redhat, etc.)
+##
+# Get the linux distribution identifier (ie: ubuntu, redhat, etc.).
+# @param : none
+# Sample usage:
+#    local dist="$(getDistribution)"
+# Caution: using 'exit $errCode' statement in that type of 'method' may not have the expected behavior (because of caller's code).
+# => Impossible to use 'logFatalError' method here !
+##
 getDistribution() {
 	local dist=""
 	# Every system that we officially support has /etc/os-release
@@ -93,7 +118,10 @@ getDistribution() {
 	echo "$dist"
 }
 
+##
 # Currently, only basic checks are done. Will have to be improved in the future.
+# @param : none
+##
 checkOSIsSupported() {
     local dist="$(getDistribution)"
 	case "${dist}" in
@@ -102,7 +130,7 @@ checkOSIsSupported() {
 		debian|raspbian)
 		    ;;
 	    *)
-            logFatalError $ERR_UNSUPPORTED_OS "Can't find the /etc/os-release file. Are you sure your OS is officially supported ?"
+            logFatalError $ERR_UNSUPPORTED_OS "You're OS does not seams to be officially supported by this version of this script."
             ;;
     esac
     checkBinaryIsInThePath sudo
@@ -112,30 +140,54 @@ checkOSIsSupported() {
     local errorCode=$?
     set -e
     if [ $errorCode -ne 0 ]; then
-        logFatalError $ERR_INSUFFICIENT_PRIVILEGES "Are your user a register as sudoered ? (See file /etc/sudoers)."
+        logFatalError $ERR_INSUFFICIENT_PRIVILEGES "Are your user registered as sudoers (in file /etc/sudoers) ?"
     fi
 }
 
+##
+# Update the OS's packages. Needs an internet connection.
+# @param : none
+##
 updateOS() {
+    checkBinaryIsInThePath 'apt-get'
     sudo apt-get update
     sudo apt-get -y upgrade
 }
 
+##
+# Install some packages needed by BIARMS tools. Needs an internet connection.
+# @param : none
+##
 installNeededPackages() {
+    checkBinaryIsInThePath 'apt-get'
     sudo apt-get -y install wget make git pwgen
 }
 
+##
+# Install the latest 'docker-ce' package. Needs an internet connection.
+# @param : none
+##
 installDocker() {
+    checkBinaryIsInThePath 'curl'
     curl -fsSL get.docker.com | sh
+    checkBinaryIsInThePath 'sudo'
     sudo usermod -aG docker "${USER}"
+    checkBinaryIsInThePath 'docker'
     sudo docker version
     # The script was run twice and the swarm was already setup: OK: just ignore this pb (-> || true)
     sudo docker swarm init || true
 }
 
+##
+# Checkout the source code of the 'arm-docker-stacks' github repository using 'git'. Needs an internet connection.
+# Also expects that 'git' is installed.
+# @param : none
+##
 checkoutBIARMSStackGitRepo() {
+    checkBinaryIsInThePath 'git'
     if [ -d "${BIARMS_STACKS_FOLDER}" ]; then
-        # if the folder exist, we assumpt it is our, and we updated it with git
+        # If the folder exists, we assume it is our, and we updated it with git.
+        # May fail is user change the contain of this folder: that's OK: he is not supposed to do that.
         pushd "${BIARMS_STACKS_FOLDER}"
         git pull
         popd
@@ -145,36 +197,59 @@ checkoutBIARMSStackGitRepo() {
     fi
 }
 
-# Deploy an 'BIARMS' docker stack. Current implemention is using make:
-# 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder
-# 2. We know that a Makefile is present in each sub-folder
-# 3. We know that a 'deploy' make target exists
+##
+# Deploy an 'BIARMS' docker stack. Current implementation is using 'deploy.sh':
+# 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder;
+# 2. We know that a 'deploy.sh' is present in each sub-folder.
 #
-# $1 (String) -> the 'docker stack' identifier (which is the name of a sub-folder in arm-docker-stacks' git repo.
+# Future possible improvement (or not): use make:
+# 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder;
+# 2. We know that a Makefile is present in each sub-folder;
+# 3. We know that a 'deploy' make target exists.
+#
+# @param $1 (String) -> the 'docker stack' identifier (which is the name of a sub-folder in arm-docker-stacks' git repo.
+##
 deployStack() {
     local stack_id="$1"
     pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
-    # Don't use make, because make don't behave correctly on different OS. Use bash for now, until we find
-    # something better
+    # Don't use make, because make don't behave correctly on different OS. Use bash for now, until we find something better (or not)
     # make deploy
     ./deploy.sh
     popd
 }
 
+##
 # In the future, we should here propose choice to the user. Currently, we have only one stack, so let's deploy it.
+# @param : none
+##
 doBootStrap() {
     deployStack 'infra'
     deployStack 'wordpress'
 }
 
+##
+# Display information message about the URL to connect to.
+# @param : none
+##
+doDisplayIP() {
+    checkBinaryIsInThePath 'ip'
+    local ip="$(ip route get 8.8.8.8 | head -1 | awk '{print $7}')"
+    logInfo "To access the Docker Admin Portainer console, try to access to http://${ip}:9000/"
+    logInfo "To access the WordPress web site, try to access to http://${ip}:8050/"
+    logInfo "Alternative: http://$(hostname).local:9000/ may also works if you've correctly configure the zeroconf software on your network"
+    logInfo "Other IP alternatives: $(hostname -I)"
+ }
+
+##
 # The main entry point of this script.
-# $1 (String, un-mandatory): a method name: if provided, only this method will be called. Otherwise, the entire script
+# [@param $1 (String)]: a (un-mandatory) method name: if provided, only this method will be called. Otherwise, the entire script
 # will be executed. Could be useful for debugging and or recovery.
+##
 main() {
     local methodName="$1"
     initBestPractices
     logSetup
-    log "Start Brother in Arms' project bootstrap"
+    logInfo "Start Brother in Arms' project bootstrap"
     if [[ "$methodName" == "" ]]; then
         checkOSIsSupported
         updateOS
@@ -182,12 +257,15 @@ main() {
         installDocker
         checkoutBIARMSStackGitRepo
         # A workaround for the second known issue: finish the installation in a new session. But that's a mess at log level :(
-        sudo -u "$USER" "$(pwd)/$0" doBootStrap
+        # sudo -u "$USER" "$(pwd)/$0" doBootStrap
+        # Actually, it doesn't work...
+        doBootStrap
+        doDisplayIP
     else
         shift
         "$methodName" $*
     fi
-    log "Brother in Arms' project bootstrap completed"
+    logInfo "Brother in Arms' project bootstrap completed"
 }
 
 ### Test functions, designed to be run with bash_unit (https://github.com/pgrange/bash_unit)
@@ -246,8 +324,8 @@ teardown_suite() {
     printf "<=\n"
 }
 
-# Always put the main method call at the end of the file so that we have some protection against only
-# getting half the file during "curl | sh"
-# Don't run the main function if the this file is 'sourced', which is the case with bash_unit. So next line is a MUST for runnable script (not necessary for bash libraries)
+# Always put the main method call at the end of the file so that we have some protection against only getting half the file during "bash <(curl)"
+# Don't run the main function if the this file is 'sourced', which is the case with bash_unit.
+# So next line is a MUST for runnable script (not necessary for bash libraries)
 # Inspired by https://github.com/progrium/bashstyle
 [[ "$0" == "$BASH_SOURCE" ]] && main "$@"
