@@ -12,8 +12,8 @@
 #       before executing.
 ##
 
-declare ERR_MISSING_LIB=501
-declare ERR_DOWNLOAD_ISSUE=401
+ERR_MISSING_LIB=501
+ERR_DOWNLOAD_ISSUE=401
 
 ##
 # Print an error message and exit (if nor bash and curl are present in the path).
@@ -73,10 +73,12 @@ downloadScript() {
 # [@param $1 (String)]: a (un-mandatory) git branch name (typically, 'master' or 'develop')
 ##
 main() {
-    local gitBranchName="${1}"
-    if [[ "${gitBranchName}" == "" ]]; then
+	set -x
+    local gitBranchName="$1"
+    if [ -z "$gitBranchName" ]; then
         gitBranchName="master"
     fi
+    echo $gitBranceName
     checkBinaryIsInThePath 'bash'
     checkBinaryIsInThePath 'curl'
     downloadScript "${gitBranchName}" "entrypoint.sh" "biarms-bootstrap.sh"
