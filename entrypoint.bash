@@ -214,7 +214,8 @@ deployStack() {
     pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
     # Don't use make, because make don't behave correctly on different OS. Use bash for now, until we find something better (or not)
     # make deploy
-    ./deploy.sh
+    # Run deploy as 'root' to avoid the 'pi user is in docker group, but still don't have docker group rights' issue.
+    sudo ./deploy.sh
     popd
 }
 
@@ -258,7 +259,7 @@ main() {
         checkoutBIARMSStackGitRepo
         # A workaround for the second known issue: finish the installation in a new session. But that's a mess at log level :(
         # sudo -u "$USER" "$(pwd)/$0" doBootStrap
-        # Actually, it doesn't work...
+        # -> Actually, it doesn't work...
         doBootStrap
         doDisplayIP
     else
