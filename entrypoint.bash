@@ -168,8 +168,10 @@ installNeededPackages() {
 # @param : none
 ##
 installDocker() {
-    checkBinaryIsInThePath 'curl'
-    curl -fsSL get.docker.com | sh
+    if ! which docker > /dev/null; then
+        checkBinaryIsInThePath 'curl'
+        curl -fsSL get.docker.com | sh
+    fi
     checkBinaryIsInThePath 'sudo'
     sudo usermod -aG docker "${USER}"
     checkBinaryIsInThePath 'docker'
@@ -198,11 +200,7 @@ checkoutBIARMSStackGitRepo() {
 }
 
 ##
-# Deploy an 'BIARMS' docker stack. Current implementation is using 'deploy.sh':
-# 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder;
-# 2. We know that a 'deploy.sh' is present in each sub-folder.
-#
-# Future possible improvement (or not): use make:
+# Deploy an 'BIARMS' docker stack. Current implementation is using make:
 # 1. We know that stacks are located as subfolder of the 'biarms-stacks' folder;
 # 2. We know that a Makefile is present in each sub-folder;
 # 3. We know that a 'deploy' make target exists.
@@ -212,10 +210,8 @@ checkoutBIARMSStackGitRepo() {
 deployStack() {
     local stack_id="$1"
     pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
-    # Don't use make, because make don't behave correctly on different OS. Use bash for now, until we find something better (or not)
-    # make deploy
     # Run deploy as 'root' to avoid the 'pi user is in docker group, but still don't have docker group rights' issue.
-    sudo ./deploy.sh
+    sudo make deploy ./deploy.sh
     popd
 }
 
