@@ -211,7 +211,7 @@ deployStack() {
     local stack_id="$1"
     pushd "${BIARMS_STACKS_FOLDER}/${stack_id}"
     # Run deploy as 'root' to avoid the 'pi user is in docker group, but still don't have docker group rights' issue.
-    sudo make deploy ./deploy.sh
+    sudo make deploy
     popd
 }
 
