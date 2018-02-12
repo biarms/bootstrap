@@ -177,7 +177,7 @@ installDocker() {
     checkBinaryIsInThePath 'docker'
     sudo docker version
     # The script was run twice and the swarm was already setup: OK: just ignore this pb (-> || true)
-    sudo docker swarm init || true
+    sudo docker swarm init --advertise-addr $(hostname -i) || true
 }
 
 ##
@@ -235,7 +235,7 @@ doDisplayIP() {
     logInfo "To access the Docker Admin Portainer console, try to access to http://${ip}:9000/"
     logInfo "To access the WordPress web site, try to access to http://${ip}:8050/"
     logInfo "Alternative: http://$(hostname).local:9000/ may also works if you've correctly configure the zeroconf software on your network"
-    logInfo "Other IP alternatives: $(hostname -I)"
+    logInfo "Other IP alternatives: $(hostname -i) or one of $(hostname -I)"
  }
 
 ##
