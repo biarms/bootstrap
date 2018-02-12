@@ -222,6 +222,7 @@ deployStack() {
 doBootStrap() {
     deployStack 'infra'
     deployStack 'wordpress'
+    deployStack 'gogs'
 }
 
 ##
